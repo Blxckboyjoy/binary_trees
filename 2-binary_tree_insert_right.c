@@ -1,64 +1,18 @@
 #include "binary_trees.h"
 
 /**
- * binary_tree_insert_right - Inserts a node as the right-child of another node
+ * binary_tree_node - creates a binary tree node
+ * @parent: pointer to the parent node
+ * @value: value to store in the new node
  *
- * @parent: Pointer to the node to insert the right-child in
- * @value: Value to store in the new node
- *
- * Return: Pointer to the created node, or NULL on failure or if parent is NULL
- */
-binary_tree_t *binary_tree_insert_right(binary_tree_t *parent, int value)
-{
-    binary_tree_t *new_node = NULL;
-
-    if (!parent)
-        return (NULL);
-
-    new_node = binary_tree_node(parent, value);
-    if (!new_node)
-        return (NULL);
-
-    if (parent->right)
-        binary_tree_swap_right(parent->right, new_node);
-
-    parent->right = new_node;
-
-    return (new_node);
-}
-
-/**
- * binary_tree_swap_right - Swaps two nodes in the right subtree
- *
- * @old_right: The old right child
- * @new_right: The new right child
- */
-void binary_tree_swap_right(binary_tree_t *old_right, binary_tree_t *new_right)
-{
-    new_right->right = old_right;
-    new_right->parent = old_right->parent;
-
-    if (old_right->right)
-        old_right->right->parent = new_right;
-
-    old_right->right = NULL;
-    old_right->parent = new_right;
-}
-
-/**
- * binary_tree_node - Creates a binary tree node
- *
- * @parent: Pointer to the parent node of the node to create
- * @value: Value to put in the new node
- *
- * Return: Pointer to the new node, or NULL on failure
+ * Return: pointer to the new node, or NULL on failure
  */
 binary_tree_t *binary_tree_node(binary_tree_t *parent, int value)
 {
     binary_tree_t *new_node;
 
     new_node = malloc(sizeof(binary_tree_t));
-    if (!new_node)
+    if (new_node == NULL)
         return (NULL);
 
     new_node->n = value;
@@ -70,37 +24,30 @@ binary_tree_t *binary_tree_node(binary_tree_t *parent, int value)
 }
 
 /**
- * binary_tree_delete - Deletes a binary tree
+ * binary_tree_insert_right - inserts a node as the right-child of another node
+ * @parent: pointer to the node to insert the right-child in
+ * @value: value to store in the new node
  *
- * @tree: Pointer to the root node of the tree to delete
+ * Return: pointer to the created node, or NULL on failure or if parent is NULL
  */
-void binary_tree_delete(binary_tree_t *tree)
+binary_tree_t *binary_tree_insert_right(binary_tree_t *parent, int value)
 {
-    if (!tree)
-        return;
+    binary_tree_t *new_node, *old_right;
 
-    binary_tree_delete(tree->left);
-    binary_tree_delete(tree->right);
+    if (parent == NULL)
+        return (NULL);
 
-    free(tree);
-}
+    old_right = parent->right;
 
-/**
- * binary_tree_height - Measures the height of a binary tree
- *
- * @tree: Pointer to the root node of the tree to measure the height
- *
- * Return: The height of the tree
- */
-size_t binary_tree_height(const binary_tree_t *tree)
-{
-    size_t left_height, right_height;
+    new_node = binary_tree_node(parent, value);
+    if (new_node == NULL)
+        return (NULL);
 
-    if (!tree)
-        return (0);
+    parent->right = new_node;
+    new_node->right = old_right;
 
-    left_height = binary_tree_height(tree->left);
-    right_height = binary_tree_height(tree->right);
+    if (old_right != NULL)
+        old_right->parent = new_node;
 
-    return (MAX(left_height, right_height) + 1);
+    return (new_node);
 }
