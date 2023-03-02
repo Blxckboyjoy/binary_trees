@@ -1,29 +1,37 @@
 #include "binary_trees.h"
-#include <stdlib.h>
 
 /**
- * heap_to_sorted_array - Converts a Binary Max Heap to a sorted array of integers
- * @heap: Pointer to the root node of the heap to convert
- * @size: Address to store the size of the array
- *
- * Return: Pointer to the sorted array of integers, or NULL if heap is NULL or empty
- */
+
+heap_to_sorted_array - Converts a Binary Max Heap to a sorted array of integers
+
+@heap: A pointer to the root node of the heap to convert
+
+@size: A pointer to store the size of the array
+
+Return: A pointer to the sorted array of integers, NULL on failure
+*/
 int *heap_to_sorted_array(heap_t *heap, size_t *size)
 {
-    int *array = NULL;
-    size_t i, n;
+int *array, tmp;
+size_t i;
 
-    if (heap == NULL)
-        return (NULL);
+if (!heap || !size)
+return (NULL);
 
-    n = binary_tree_size(heap);
-    array = malloc(n * sizeof(int));
-    if (array == NULL)
-        return (NULL);
+*size = binary_tree_size(heap);
+array = malloc(sizeof(int) * (*size));
+if (!array)
+return (NULL);
 
-    for (i = 0; i < n; i++)
-        array[i] = heap_extract(&heap);
+for (i = 0; i < *size; i++)
+array[i] = heap_extract(&heap);
 
-    *size = n;
-    return (array);
+for (i = 0; i < *size / 2; i++)
+{
+tmp = array[i];
+array[i] = array[(*size - 1) - i];
+array[(*size - 1) - i] = tmp;
+}
+
+return (array);
 }
