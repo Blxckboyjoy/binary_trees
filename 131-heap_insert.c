@@ -1,95 +1,68 @@
 #include "binary_trees.h"
 
 /**
- * binary_tree_size - Measures the size of a binary tree.
- * @tree: A pointer to the root node of the tree to measure the size of.
+ * heap_insert - inserts a value in Max Binary Heap
+ * @root: a double pointer to the root node of the Heap to insert the value
+ * @value: the value to store in the node to be inserted
  *
- * Return: The size of the tree.
- */
-size_t binary_tree_size(const binary_tree_t *tree)
-{
-    if (tree == NULL)
-        return (0);
-
-    return (1 + binary_tree_size(tree->left) + binary_tree_size(tree->right));
-}
-
-/**
- * heapify - Heapifies a Max Binary Heap.
- * @node: A pointer to the root node of the tree to heapify.
- */
-void heapify(heap_t *node)
-{
-    heap_t *max = node;
-
-    if (node->left && node->left->n > max->n)
-        max = node->left;
-
-    if (node->right && node->right->n > max->n)
-        max = node->right;
-
-    if (max != node)
-    {
-        node->n ^= max->n;
-        max->n ^= node->n;
-        node->n ^= max->n;
-        heapify(max);
-    }
-}
-
-/**
- * heap_insert - Inserts a value into a Max Binary Heap.
- * @root: A double pointer to the root node of the Heap to insert the value.
- * @value: The value to store in the node to be inserted.
- *
- * Return: A pointer to the created node, or NULL on failure.
+ * Return: a pointer to the created node
+ *         NULL on failure
  */
 heap_t *heap_insert(heap_t **root, int value)
 {
-    size_t size = 0, index = 0;
-    heap_t *new = NULL, *node = *root;
+	heap_t *tree, *new, *flip;
+	int size, leaves, sub, bit, level, tmp;
 
-    if (root == NULL)
-        return (NULL);
+	if (!root)
+		return (NULL);
+	if (!(*root))
+		return (*root = binary_tree_node(NULL, value));
+	tree = *root;
+	size = binary_tree_size(tree);
+	leaves = size;
+	for (level = 0, sub = 1; leaves >= sub; sub *= 2, level++)
+		leaves -= sub;
+	/* subtract all nodes except for bottom-most level */
 
-    size = binary_tree_size(node);
+	for (bit = 1 << (level - 1); bit != 1; bit >>= 1)
+		tree = leaves & bit ? tree->right : tree->left;
+	/*
+	 * Traverse tree to first empty slot based on the binary
+	 * representation of the number of leaves.
+	 * Example -
+	 * If there are 12 nodes in a complete tree, there are 5 leaves on
+	 * the 4th tier of the tree. 5 is 101 in binary. 1 corresponds to
+	 * right, 0 to left.
+	 * The first empty node is 101 == RLR, *root->right->left->right
+	 */
 
-    if (size == 0)
-    {
-        *root = binary_tree_node(NULL, value);
-        return (*root);
-    }
+	new = binary_tree_node(tree, value);
+	leaves & 1 ? (tree->right = new) : (tree->left = new);
 
-    for (index = 0; index < size; index++)
-    {
-        if ((size >> (index + 1)) == 0)
-            break;
+	flip = new;
+	for (; flip->parent && (flip->n > flip->parent->n); flip = flip->parent)
+	{
+		tmp = flip->n;
+		flip->n = flip->parent->n;
+		flip->parent->n = tmp;
+		new = new->parent;
+	}
+	/* Flip values with parent until parent value exceeds new value */
 
-        if (index == 0)
-            continue;
+	return (new);
+}
 
-        if ((size >> index) & 1)
-            node = node->right;
-        else
-            node = node->left;
-    }
+/**
+ * binary_tree_size - measures the size of a binary tree
+ * @tree: tree to measure the size of
+ *
+ * Return: size of the tree
+ *         0 if tree is NULL
+ */
+size_t binary_tree_size(const binary_tree_t *tree)
+{
+	if (!tree)
+		return (0);
 
-    if ((size >> index) & 1)
-        node->right = binary_tree_node(node, value);
-    else
-        node->left = binary_tree_node(node, value);
-
-    new = (size >> index) & 1 ? node->right : node->left;
-
-    while (new->parent != NULL && new->parent->n < new->n)
-    {
-        new->n ^= new->parent->n;
-        new->parent->n ^= new->n;
-        new->n ^= new->parent->n;
-        new = new->parent;
-    }
-
-    heapify(*root);
-
-    return (new);
+	return (binary_tree_size(tree->left) + binary_tree_size(tree->right) + 1);
 }

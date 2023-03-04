@@ -1,27 +1,25 @@
 #include "binary_trees.h"
 
 /**
- * heap_to_sorted_array - Converts a binary max heap to a sorted array
- * @heap: Pointer to the root node of the heap to convert
- * @size: Address to store the size of the array
+ * binary_tree_node - Creates a binary tree node.
+ * @parent: A pointer to the parent of the node to create.
+ * @value: The value to put in the new node.
  *
- * Return: Pointer to the sorted array, or NULL on failure
+ * Return: If an error occurs - NULL.
+ *         Otherwise - a pointer to the new node.
  */
-int *heap_to_sorted_array(heap_t *heap, size_t *size)
+binary_tree_t *binary_tree_node(binary_tree_t *parent, int value)
 {
-    int *sorted_array;
-    size_t i;
+	binary_tree_t *new;
 
-    if (heap == NULL || size == NULL)
-        return (NULL);
+	new = malloc(sizeof(binary_tree_t));
+	if (new == NULL)
+		return (NULL);
 
-    sorted_array = malloc(heap->size * sizeof(int));
-    if (sorted_array == NULL)
-        return (NULL);
+	new->n = value;
+	new->parent = parent;
+	new->left = NULL;
+	new->right = NULL;
 
-    for (i = 0; i < heap->size; i++)
-        sorted_array[i] = heap_extract(&heap);
-
-    *size = i;
-    return (sorted_array);
+	return (new);
 }

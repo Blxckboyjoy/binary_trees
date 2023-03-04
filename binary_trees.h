@@ -6,8 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-/* Data structures used in this project */
+/* Data structures */
 
 /**
  * struct binary_tree_s - Binary tree node
